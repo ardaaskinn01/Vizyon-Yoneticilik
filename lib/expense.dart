@@ -23,15 +23,20 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     checkPermissions();
   }
 
-  // Kullanıcı izinlerini kontrol eden fonksiyon
   void checkPermissions() async {
-    // Firebase Authentication ile currentUser'ı alıyoruz
-    User? currentUser = FirebaseAuth.instance.currentUser;
+    // Adminse tüm harcamalar görülebilir
+    if (widget.id != 1) {
+      setState(() {
+        canViewExpenses = true;
+      });
+      return;
+    }
 
+    User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
       DocumentSnapshot userPermissionsSnapshot = await FirebaseFirestore.instance
           .collection('users')
-          .doc(currentUser.uid) // Kullanıcının UID'sini kullanıyoruz
+          .doc(currentUser.uid)
           .collection('izinler')
           .doc(widget.siteId)
           .get();
@@ -76,7 +81,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  if (canViewExpenses == false) {
+                  if (widget.id == 1 && canViewExpenses == false) {
                     return Center(
                       child: Icon(
                         Icons.lock,
@@ -84,8 +89,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                         size: 100,
                       ),
                     );
-                  }
-                  else {
+                  } else {
                     return Center(
                       child: Text(
                         'Hiç gider bulunamadı.',
@@ -101,7 +105,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                   itemCount: expenses.length,
                   itemBuilder: (context, index) {
                     var expense = expenses[index];
-                    bool isLocked = !canViewExpenses;
+                    bool isLocked = widget.id == 1 && !canViewExpenses;
 
                     if (isLocked) {
                       return Center(
@@ -135,7 +139,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                               Text(
                                 '${expense['amount']} TL',
                                 style: TextStyle(
-                                  color: isLocked ? Colors.grey : Color(0xFFFF0000),
+                                  color: Color(0xFFFF0000),
                                   fontSize: 16,
                                 ),
                               ),
@@ -202,7 +206,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                       selectedApartment = value;
                     });
                   },
-                  decoration: InputDecoration(labelText: 'Apartman Seç'),
+                  decoration: InputDecoration(labelText: 'Site Seç'),
                 ),
                 SizedBox(height: 20),
                 TextField(

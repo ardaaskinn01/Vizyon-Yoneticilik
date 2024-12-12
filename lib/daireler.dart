@@ -31,9 +31,20 @@ class DairelerScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                final String apartmentNumber = apartmentNumberController.text.trim();
+                // Text alanının boş olmadığını ve yalnızca rakam içerdiğini kontrol edin
+                final String inputText = apartmentNumberController.text.trim();
+                if (inputText.isEmpty || int.tryParse(inputText) == null) {
+                  // Kullanıcıya hatalı giriş için bir uyarı gösterin
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Lütfen geçerli bir daire numarası girin.')),
+                  );
+                  return;
+                }
 
-                if (apartmentNumber.isNotEmpty) {
+                // Giriş geçerli, tam sayıya dönüştürün
+                final int apartmentNumber = int.parse(inputText);
+
+                try {
                   // Firebase'e yeni daire ekleme
                   await FirebaseFirestore.instance
                       .collection('blocks')
@@ -44,7 +55,14 @@ class DairelerScreen extends StatelessWidget {
                     'number': apartmentNumber,
                     'borçlar': 0, // Varsayılan borç miktarı
                   });
-                  Navigator.pop(context); // Popup'ı kapat
+
+                  // İşlem başarılıysa, popup'ı kapatın
+                  Navigator.pop(context);
+                } catch (e) {
+                  // Hata durumunda kullanıcıyı bilgilendirin
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Daire eklenirken bir hata oluştu.')),
+                  );
                 }
               },
               child: const Text('Kaydet'),
@@ -103,11 +121,9 @@ class DairelerScreen extends StatelessWidget {
             .collection('blocks')
             .doc(blockId)
             .collection('apartments')
+            .orderBy('number', descending: false) // Sıralama eklendi
             .snapshots(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(

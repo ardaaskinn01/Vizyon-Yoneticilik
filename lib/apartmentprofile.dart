@@ -309,9 +309,6 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
             .where('blockId', isEqualTo: widget.apartmentId)
             .snapshots(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return Center(
@@ -325,8 +322,8 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
           final users = snapshot.data!.docs;
 
           users.sort((a, b) {
-            int daireNoA = a['number'] ?? 0;
-            int daireNoB = b['number'] ?? 0;
+            int daireNoA = (a['number']);
+            int daireNoB = (b['number']);
             return daireNoA.compareTo(daireNoB);
           });
 
@@ -347,9 +344,7 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
                     .doc(widget.apartmentId)
                     .get(),
                 builder: (context, permissionSnapshot) {
-                  if (permissionSnapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  }
+
 
                   if (permissionSnapshot.hasError) {
                     return Card(
@@ -448,9 +443,6 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
                             child: FutureBuilder<List<Map<String, dynamic>>>(
                               future: _getUserDebts(userId2),
                               builder: (context, debtSnapshot) {
-                                if (debtSnapshot.connectionState == ConnectionState.waiting) {
-                                  return CircularProgressIndicator();
-                                }
                                 if (debtSnapshot.hasError) {
                                   return Text("Hata oluştu");
                                 }

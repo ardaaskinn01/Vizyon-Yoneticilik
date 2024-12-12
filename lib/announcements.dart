@@ -20,6 +20,14 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
 
   // Kullanıcı izinlerini kontrol etme
   void checkPermissions() async {
+    // Eğer kullanıcı admin ise kilit kontrolüne gerek yok
+    if (widget.id != 1) {
+      setState(() {
+        isLocked = false;
+      });
+      return;
+    }
+
     // Firebase Authentication ile currentUser'ı alıyoruz
     User? currentUser = FirebaseAuth.instance.currentUser;
 
@@ -35,11 +43,11 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
         var permissions = userPermissionsSnapshot.data() as Map<String, dynamic>;
         setState(() {
           // 'duyuruSecili' iznine göre 'isLocked' durumunu ayarlıyoruz
-          isLocked = permissions['duyuruSecili'] ?? false;
+          isLocked = !permissions['duyuruSecili'];
         });
       } else {
         setState(() {
-          isLocked = false;
+          isLocked = true;
         });
       }
     }
@@ -68,7 +76,9 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
         backgroundColor: Color(0xFFFF8805),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('announcements').where('siteId', isEqualTo: widget.siteId)
+        stream: FirebaseFirestore.instance
+            .collection('announcements')
+            .where('siteId', isEqualTo: widget.siteId)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -76,23 +86,18 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            if (isLocked == false) {
-              return Center(
-                child: Icon(
-                  Icons.lock,
-                  color: Colors.grey,
-                  size: 100,
-                ),
-              );
-            }
-            else {
-              return Center(
-                child: Text(
-                  'Hiç duyuru bulunamadı.',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-                ),
-              );
-            }
+            return Center(
+              child: isLocked
+                  ? Icon(
+                Icons.lock,
+                color: Colors.grey,
+                size: 100,
+              )
+                  : Text(
+                'Hiç duyuru bulunamadı.',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+              ),
+            );
           }
 
           var announcements = snapshot.data!.docs
@@ -103,7 +108,7 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
             padding: EdgeInsets.all(16),
             itemCount: announcements.length,
             itemBuilder: (context, index) {
-              if (!isLocked) {
+              if (!isLocked && widget.id == 1) {
                 return Center(
                   child: Icon(
                     Icons.lock,
@@ -120,7 +125,6 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
                     : announcementText;
 
                 String addedBy = announcement['ekleyen'] ?? 'Bilinmiyor';
-                // Kilitli değilse duyuru normal şekilde gösterilir
                 return Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
