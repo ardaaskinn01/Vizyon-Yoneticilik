@@ -99,22 +99,47 @@ class _BlokSayfasiState extends State<BlokSayfasi> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("${widget.blockName}"),
-        backgroundColor: Color(0xFFFF8805),
+        title: Text(
+          "${widget.blockName}",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+        backgroundColor: Color(0xFFFF8805),  // AppBar rengi
+        elevation: 8,  // Gölge efekti ekledik
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
         itemCount: daireler.length,
         itemBuilder: (context, index) {
           var daire = daireler[index];
           String daireNo = daire['number'].toString();
-          return CheckboxListTile(
-            title: Text(daire['name']),
-            value: izinDurumlari[daireNo],
-            onChanged: (value) {
-              updateIzin(daireNo, value!);
-            },
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),  // Yuvarlatılmış köşeler
+            ),
+            elevation: 5,  // Kart gölgesi
+            child: CheckboxListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              title: Text(
+                daire['name'],
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFFF8805),  // Başlık rengi
+                ),
+              ),
+              value: izinDurumlari[daireNo],
+              onChanged: (value) {
+                updateIzin(daireNo, value!);
+              },
+              activeColor: Color(0xFF08FFFF).withOpacity(0.5),  // Onaylandığında renk
+              checkColor: Colors.white,  // Onay işareti rengi
+              controlAffinity: ListTileControlAffinity.leading,  // Checkbox solda
+            ),
           );
         },
       ),

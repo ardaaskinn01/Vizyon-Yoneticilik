@@ -114,7 +114,8 @@ class DairelerScreen extends StatelessWidget {
           'Daireler',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Color(0xFFFF8805), // Öne çıkan renk
+        elevation: 0,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -124,10 +125,12 @@ class DairelerScreen extends StatelessWidget {
             .orderBy('number', descending: false) // Sıralama eklendi
             .snapshots(),
         builder: (context, snapshot) {
-
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
-              child: Text('Henüz daire eklenmedi.'),
+              child: Text(
+                'Henüz daire eklenmedi.',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
             );
           }
 
@@ -143,18 +146,28 @@ class DairelerScreen extends StatelessWidget {
                 },
                 child: Card(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(15), // Daha yuvarlak köşeler
                   ),
-                  elevation: 5,
+                  elevation: 10, // Daha belirgin gölge
                   margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  color: Color(0xFFFF8805).withOpacity(0.2), // Öne çıkan renk
                   child: ListTile(
+                    contentPadding: const EdgeInsets.all(16),
                     title: Text(
                       'Daire No: ${apartment['number']}',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
                     subtitle: Text(
                       'Borç: ${apartment['borçlar']} TL',
-                      style: const TextStyle(fontSize: 16, color: Colors.redAccent),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.redAccent,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
@@ -167,7 +180,7 @@ class DairelerScreen extends StatelessWidget {
         onPressed: () {
           showAddApartmentDialog(context);
         },
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Color(0xFFFF8805), // Öne çıkan renk
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );

@@ -40,8 +40,12 @@ class _SiteSelectionScreenState extends State<SiteSelectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Siteler Listesi'),
-        backgroundColor: Color(0xFF08FFFF),
+        title: const Text(
+          'Siteler Listesi',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Color(0xFF08FFFF),  // AppBar rengi
+        elevation: 5,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('site').snapshots(),
@@ -52,7 +56,8 @@ class _SiteSelectionScreenState extends State<SiteSelectionScreen> {
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
-              child: Text('Henüz site eklenmedi.'),
+              child: Text('Henüz site eklenmedi.',
+                  style: TextStyle(fontSize: 18, color: Colors.grey)),
             );
           }
 
@@ -65,16 +70,28 @@ class _SiteSelectionScreenState extends State<SiteSelectionScreen> {
               return GestureDetector(
                 child: Card(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),  // Yuvarlatılmış köşeler
                   ),
-                  elevation: 5,
+                  elevation: 8,  // Gölge ekledik
                   margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  color: Colors.white,  // Arka plan rengini beyaz yaptık
                   child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     title: Text(
                       site['name'],
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 20,  // Başlık boyutu
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFFF8805),  // Başlık rengi
+                      ),
                     ),
-                    subtitle: Text('Site No: ${site['num']}'),
+                    subtitle: Text(
+                      'Site No: ${site['num']}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Color(0xFFFF8805),  // Alt başlık rengi
+                      ),
+                    ),
                     onTap: () {
                       Navigator.push(
                         context,

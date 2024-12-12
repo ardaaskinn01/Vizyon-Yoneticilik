@@ -68,8 +68,8 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
                     await _addDebtForSingleUser(
                         userId, description, amount);
                   }
-                  Navigator.of(context).pop();
                 }
+                Navigator.of(context).pop();
               },
               child: Text('Ekle'),
             ),
@@ -301,131 +301,62 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
         ),
         backgroundColor: Color(0xFF08FFFF), // Belirtilen renk
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('blocks')
-            .doc(widget.apartmentId)
-            .collection("apartments")
-            .where('blockId', isEqualTo: widget.apartmentId)
-            .snapshots(),
-        builder: (context, snapshot) {
-
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(
-              child: Text(
-                'Bu apartmanda kullanıcı yok.',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-            );
-          }
-
-          final users = snapshot.data!.docs;
-
-          users.sort((a, b) {
-            int daireNoA = (a['number']);
-            int daireNoB = (b['number']);
-            return daireNoA.compareTo(daireNoB);
-          });
-
-          return ListView.builder(
-            itemCount: users.length,
-            itemBuilder: (context, index) {
-              User? currentUser = FirebaseAuth.instance.currentUser;
-              final user = users[index];
-              final userId = currentUser!.uid;
-              final userId2 = user.id;
-              final daireNumber = user['number'].toString();
-
-              return FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(userId)
-                    .collection('izinler')
-                    .doc(widget.apartmentId)
-                    .get(),
-                builder: (context, permissionSnapshot) {
-
-
-                  if (permissionSnapshot.hasError) {
-                    return Card(
-                      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                      elevation: 8,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      color: Color(0xFF08FFFF).withOpacity(0.2),
-                      child: ListTile(
-                        title: Text(
-                          'Daire ${user['number']}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.black,
-                          ),
-                        ),
-                        subtitle: Text('İzin durumu kontrol edilemedi.'),
-                      ),
-                    );
-                  }
-
-                  // Admin kontrolü
-                  bool isAdmin = widget.id == 1;
-                  final permissionData = permissionSnapshot.data?.data() as Map<String, dynamic>?;
-                  final hasPermission = isAdmin || permissionData?[daireNumber] == true;
-
-                  return Card(
-                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                    elevation: 8,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+      body: Column(
+        children: [
+          // Kaydırılabilir içerik alanı
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('blocks')
+                  .doc(widget.apartmentId)
+                  .collection("apartments")
+                  .where('blockId', isEqualTo: widget.apartmentId)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'Bu apartmanda kullanıcı yok.',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
-                    color: Color(0xFF08FFFF).withOpacity(0.2),
-                    child: GestureDetector(
-                      onLongPress: () {
-                        if (!isAdmin) { // Admin ise seçim yapılmasın
-                          setState(() {
-                            if (selectedUserIds.contains(userId)) {
-                              selectedUserIds.remove(userId);
-                            } else {
-                              selectedUserIds.add(userId);
-                            }
-                          });
-                        }
-                      },
-                      child: ExpansionTile(
-                        backgroundColor: hasPermission
-                            ? Color(0xFF08FFFF).withOpacity(0.6)
-                            : Colors.grey.withOpacity(0.6),
-                        title: Row(
-                          children: [
-                            if (isAdmin) // Admin ise checkbox gizlensin
-                              Checkbox(
-                                value: selectedUserIds.contains(userId2),
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value == true) {
-                                      selectedUserIds.add(userId2);
-                                    } else {
-                                      selectedUserIds.remove(userId2);
-                                    }
-                                  });
-                                },
-                              ),
-                            CircleAvatar(
-                              backgroundColor: hasPermission
-                                  ? Color(0xFFFF8805)
-                                  : Colors.grey,
-                              child: Text(
-                                user['number'].toString(),
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                  );
+                }
+
+                final users = snapshot.data!.docs;
+
+                users.sort((a, b) {
+                  int daireNoA = (a['number']);
+                  int daireNoB = (b['number']);
+                  return daireNoA.compareTo(daireNoB);
+                });
+
+                return ListView.builder(
+                  itemCount: users.length,
+                  itemBuilder: (context, index) {
+                    User? currentUser = FirebaseAuth.instance.currentUser;
+                    final user = users[index];
+                    final userId = currentUser!.uid;
+                    final userId2 = user.id;
+                    final daireNumber = user['number'].toString();
+
+                    return FutureBuilder<DocumentSnapshot>(
+                      future: FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(userId)
+                          .collection('izinler')
+                          .doc(widget.apartmentId)
+                          .get(),
+                      builder: (context, permissionSnapshot) {
+                        if (permissionSnapshot.hasError) {
+                          return Card(
+                            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                            elevation: 8,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                            SizedBox(width: 15),
-                            Expanded(
-                              child: Text(
+                            color: Color(0xFF08FFFF).withOpacity(0.2),
+                            child: ListTile(
+                              title: Text(
                                 'Daire ${user['number']}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
@@ -433,86 +364,177 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
                                   color: Colors.black,
                                 ),
                               ),
+                              subtitle: Text('İzin durumu kontrol edilemedi.'),
                             ),
-                          ],
-                        ),
-                        children: hasPermission
-                            ? [
-                          Container(
-                            color: Colors.grey[100],
-                            child: FutureBuilder<List<Map<String, dynamic>>>(
-                              future: _getUserDebts(userId2),
-                              builder: (context, debtSnapshot) {
-                                if (debtSnapshot.hasError) {
-                                  return Text("Hata oluştu");
-                                }
-                                final debts = debtSnapshot.data!;
-                                return Column(
-                                  children: debts.map((debt) {
-                                    return ListTile(
-                                      title: Text(
-                                        '₺${debt['amount']}',
-                                        style: TextStyle(fontWeight: FontWeight.bold),
-                                      ),
-                                      subtitle: Text(debt['description'] ?? 'Açıklama yok'),
-                                      trailing: IconButton(
-                                        icon: Icon(Icons.delete, color: Colors.red),
-                                        onPressed: () => _deleteDebt(userId, debt['id']),
-                                      ),
-                                    );
-                                  }).toList(),
-                                );
-                              },
-                            ),
+                          );
+                        }
+
+                        // Admin kontrolü
+                        bool isAdmin = widget.id == 1;
+                        final permissionData = permissionSnapshot.data?.data() as Map<String, dynamic>?;
+                        final hasPermission = isAdmin || permissionData?[daireNumber] == true;
+
+                        return Card(
+                          margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                          elevation: 8,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                        ]
-                            : [
-                          Padding(
-                            padding: EdgeInsets.all(10),
-                            child: Text(
-                              'Bu daire bilgilerini görüntülemek için izniniz yok.',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 14,
+                          color: Color(0xFF08FFFF).withOpacity(0.2),
+                          child: GestureDetector(
+                            onLongPress: () {
+                              if (!isAdmin) { // Admin değilse seçim yapılmasın
+                                setState(() {
+                                  if (selectedUserIds.contains(userId)) {
+                                    selectedUserIds.remove(userId);
+                                  } else {
+                                    selectedUserIds.add(userId);
+                                  }
+                                });
+                              }
+                            },
+                            child: ExpansionTile(
+                              backgroundColor: hasPermission
+                                  ? Color(0xFF08FFFF).withOpacity(0.6)
+                                  : Colors.grey.withOpacity(0.6),
+                              title: Row(
+                                children: [
+                                  if (isAdmin) // Admin ise checkbox gizlensin
+                                    Checkbox(
+                                      value: selectedUserIds.contains(userId2),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          if (value == true) {
+                                            selectedUserIds.add(userId2);
+                                          } else {
+                                            selectedUserIds.remove(userId2);
+                                          }
+                                        });
+                                      },
+                                    ),
+                                  CircleAvatar(
+                                    backgroundColor: hasPermission
+                                        ? Color(0xFFFF8805)
+                                        : Colors.grey,
+                                    child: Text(
+                                      user['number'].toString(),
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 15),
+                                  Expanded(
+                                    child: Text(
+                                      'Daire ${user['number']}',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
+                              children: hasPermission
+                                  ? [
+                                Container(
+                                  color: Colors.grey[100],
+                                  child: FutureBuilder<List<Map<String, dynamic>>>(
+                                    future: _getUserDebts(userId2),
+                                    builder: (context, debtSnapshot) {
+                                      if (debtSnapshot.hasError) {
+                                        return Text("Hata oluştu");
+                                      }
+                                      final debts = debtSnapshot.data!;
+                                      return Column(
+                                        children: debts.map((debt) {
+                                          return ListTile(
+                                            title: Text(
+                                              '₺${debt['amount']}',
+                                              style: TextStyle(fontWeight: FontWeight.bold),
+                                            ),
+                                            subtitle: Text(debt['description'] ?? 'Açıklama yok'),
+                                            trailing: isAdmin // Admin ise silme ikonu gösterilsin
+                                                ? IconButton(
+                                              icon: Icon(Icons.delete, color: Colors.red),
+                                              onPressed: () => _deleteDebt(userId2, debt['id']),
+                                            )
+                                                : null, // Admin değilse ikon gizlensin
+                                          );
+                                        }).toList(),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ]
+                                  : [
+                                Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Text(
+                                    'Bu daire bilgilerini görüntülemek için izniniz yok.',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        },
-      ),
-      floatingActionButton: widget.id == 0
-          ? null
-          : selectedUserIds.isEmpty
-          ? Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton.extended(
-            onPressed: () {
-              _showAddDebtDialog(userId: '', isForAllUsers: true);
-            },
-            label: Text("Tüm Dairelere Borç Ekle"),
-            icon: Icon(Icons.add),
-            backgroundColor: Color(0xFF08FFFF),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
           ),
-        ],
-      )
-          : Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton.extended(
-            onPressed: () {
-              _showAddDebtDialogForSelectedUsers();
-            },
-            label: Text("Seçili Dairelere Borç Ekle"),
-            icon: Icon(Icons.add),
-            backgroundColor: Color(0xFF08FFFF),
+
+          // Butonun olduğu alan
+          widget.id == 0
+              ? SizedBox.shrink() // Admin değilse buton gizlenir
+              : selectedUserIds.isEmpty
+              ? Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 20.0),
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  _showAddDebtDialog(userId: '', isForAllUsers: true);
+                },
+                label: Text(
+                  "Hepsine Ekle",
+                  style: TextStyle(fontSize: 12),
+                ),
+                icon: Icon(
+                  Icons.add,
+                  size: 15,
+                ),
+                backgroundColor: Color(0xFF08FFFF),
+              ),
+            ),
+          )
+              : Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 20.0),
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  _showAddDebtDialogForSelectedUsers();
+                },
+                label: Text(
+                  "Seçililere Ekle",
+                  style: TextStyle(fontSize: 11),
+                ),
+                icon: Icon(
+                  Icons.add,
+                  size: 15,
+                ),
+                backgroundColor: Color(0xFF08FFFF),
+              ),
+            ),
           ),
         ],
       ),

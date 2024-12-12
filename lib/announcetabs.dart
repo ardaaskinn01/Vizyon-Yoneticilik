@@ -21,7 +21,7 @@ class _AnnouncementsState extends State<Announcements> {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          backgroundColor: Color(0xFF08FFFF),
+          backgroundColor: Color(0xFFFF8805),
           title: TabBar(
             tabs: [
               Tab(text: 'Giderler'),

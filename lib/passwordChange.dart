@@ -45,7 +45,7 @@ class _PasswordChangeScreenState extends State<PasswordChangeScreen> {
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Hata: $e')),
+          SnackBar(content: Text('Oturum süreniz çok uzun olduğundan değiştirilemedi. Hesaba tekrar giriş yapıp deneyiniz.')),
         );
       } finally {
         setState(() {

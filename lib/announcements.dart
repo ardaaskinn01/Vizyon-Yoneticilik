@@ -20,7 +20,6 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
 
   // Kullanıcı izinlerini kontrol etme
   void checkPermissions() async {
-    // Eğer kullanıcı admin ise kilit kontrolüne gerek yok
     if (widget.id != 1) {
       setState(() {
         isLocked = false;
@@ -28,13 +27,12 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
       return;
     }
 
-    // Firebase Authentication ile currentUser'ı alıyoruz
     User? currentUser = FirebaseAuth.instance.currentUser;
 
     if (currentUser != null) {
       DocumentSnapshot userPermissionsSnapshot = await FirebaseFirestore.instance
           .collection('users')
-          .doc(currentUser.uid) // Kullanıcının UID'sini kullanıyoruz
+          .doc(currentUser.uid)
           .collection('izinler')
           .doc(widget.siteId)
           .get();
@@ -42,7 +40,6 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
       if (userPermissionsSnapshot.exists) {
         var permissions = userPermissionsSnapshot.data() as Map<String, dynamic>;
         setState(() {
-          // 'duyuruSecili' iznine göre 'isLocked' durumunu ayarlıyoruz
           isLocked = !permissions['duyuruSecili'];
         });
       } else {
@@ -59,6 +56,23 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
     checkPermissions(); // İzinleri kontrol etmek için çağırıyoruz
   }
 
+  // Duyuru Silme İşlemi
+  void deleteAnnouncement(String announcementId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('announcements')
+          .doc(announcementId)
+          .delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Duyuru başarıyla silindi')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Duyuru silinirken bir hata oluştu')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,10 +84,10 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
               onPressed: () {
                 showAnnouncementDialog(context);
               },
-              color: Colors.greenAccent,
+              color: Color(0xFFFF8805),
             ),
         ],
-        backgroundColor: Color(0xFFFF8805),
+        backgroundColor: Colors.white,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -102,13 +116,13 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
 
           var announcements = snapshot.data!.docs
               .where((announcement) => announcement['siteId'] == widget.siteId)
-              .toList(); // siteId'ye göre filtreleme
+              .toList();
 
           return ListView.builder(
             padding: EdgeInsets.all(16),
             itemCount: announcements.length,
             itemBuilder: (context, index) {
-              if (!isLocked && widget.id == 1) {
+              if (isLocked && widget.id == 1) {
                 return Center(
                   child: Icon(
                     Icons.lock,
@@ -125,6 +139,8 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
                     : announcementText;
 
                 String addedBy = announcement['ekleyen'] ?? 'Bilinmiyor';
+                String announcementId = announcement.id; // Duyuru ID'sini alıyoruz
+
                 return Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -207,6 +223,34 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
                       },
                     )
                         : null,
+                    onLongPress: widget.id == 0
+                        ? () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Duyuru Sil'),
+                            content: Text('Bu duyuruyu silmek istediğinizden emin misiniz?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text('Vazgeç'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  deleteAnnouncement(announcementId);
+                                  Navigator.pop(context);
+                                },
+                                child: Text('Sil', style: TextStyle(color: Colors.red)),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                        : null,
                   ),
                 );
               }
@@ -216,6 +260,7 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
       ),
     );
   }
+
 
   void showAnnouncementDialog(BuildContext context) {
     final TextEditingController announcementController = TextEditingController();

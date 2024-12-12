@@ -160,7 +160,6 @@ class _YetkiVermeState extends State<YetkiVerme> {
                     ],
                   ),
                 ),
-                SizedBox(height: 10),
                 // Bloklar Listesi
                 FutureBuilder<QuerySnapshot>(
                   future: FirebaseFirestore.instance

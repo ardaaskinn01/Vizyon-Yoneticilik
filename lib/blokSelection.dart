@@ -71,7 +71,6 @@ class _BlokSelectionScreenState extends State<BlokSelectionScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 10),
                 FutureBuilder<QuerySnapshot>(
                   future: FirebaseFirestore.instance
                       .collection('blocks')
@@ -119,7 +118,7 @@ class _BlokSelectionScreenState extends State<BlokSelectionScreen> {
                             color: Color(0xFF08FFFF).withOpacity(0.45),
                             margin: EdgeInsets.symmetric(vertical: 8),
                             child: ListTile(
-                              contentPadding: EdgeInsets.all(16),
+                              contentPadding: EdgeInsets.all(10),
                               title: Text(
                                 block['name'] ?? 'Blok Adı Bulunamadı',
                                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),

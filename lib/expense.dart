@@ -16,6 +16,7 @@ class ExpensesScreen extends StatefulWidget {
 class _ExpensesScreenState extends State<ExpensesScreen> {
   String? selectedApartment;
   bool canViewExpenses = false;
+  bool lockIconDisplayed = false;  // Yeni eklediğimiz bayrak
 
   @override
   void initState() {
@@ -24,7 +25,6 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   }
 
   void checkPermissions() async {
-    // Adminse tüm harcamalar görülebilir
     if (widget.id != 1) {
       setState(() {
         canViewExpenses = true;
@@ -65,10 +65,10 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
               onPressed: () {
                 showAddExpenseDialog(context);
               },
-              color: Colors.greenAccent,
+              color: Color(0xFFFF8805),
             ),
         ],
-        backgroundColor: Color(0xFFFF8805),
+        backgroundColor: Colors.white,
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -101,23 +101,29 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
 
                 var expenses = snapshot.data!.docs;
 
+                // Eğer canViewExpenses false ise sadece lock ikonunu göster
+                if (widget.id == 1 && !canViewExpenses) {
+                  return Center(
+                    child: Icon(
+                      Icons.lock,
+                      color: Colors.grey,
+                      size: 100,
+                    ),
+                  );
+                }
+
                 return ListView.builder(
                   itemCount: expenses.length,
                   itemBuilder: (context, index) {
                     var expense = expenses[index];
-                    bool isLocked = widget.id == 1 && !canViewExpenses;
 
-                    if (isLocked) {
-                      return Center(
-                        child: Icon(
-                          Icons.lock,
-                          color: Colors.grey,
-                          size: 100,
-                        ),
-                      );
-                    } else {
-                      return Card(
+                    return GestureDetector(
+                      onLongPress: widget.id == 0 && canViewExpenses
+                          ? () => showDeleteConfirmationDialog(context, expense.id)
+                          : null,
+                      child: Card(
                         margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        color: Color(0xFFFF8805).withOpacity(0.7),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -139,7 +145,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                               Text(
                                 '${expense['amount']} TL',
                                 style: TextStyle(
-                                  color: Color(0xFFFF0000),
+                                  color: Colors.white,
                                   fontSize: 16,
                                 ),
                               ),
@@ -154,8 +160,8 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                             ],
                           ),
                         ),
-                      );
-                    }
+                      ),
+                    );
                   },
                 );
               },
@@ -163,6 +169,37 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void showDeleteConfirmationDialog(BuildContext context, String expenseId) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Harcama Sil'),
+          content: Text('Bu harcamayı silmek istediğinizden emin misiniz?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('İptal'),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Firestore'dan gideri sil
+                await FirebaseFirestore.instance.collection('expenses').doc(expenseId).delete();
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Harcama başarıyla silindi.')),
+                );
+              },
+              child: Text('Sil', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -280,3 +317,5 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     );
   }
 }
+
+

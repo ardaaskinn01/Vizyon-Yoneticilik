@@ -14,7 +14,11 @@ class SitelerScreen extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Site Ekle'),
+          backgroundColor: Colors.white,
+          title: const Text(
+            'Site Ekle',
+            style: TextStyle(color: Color(0xFFFF8805)),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -22,12 +26,18 @@ class SitelerScreen extends StatelessWidget {
                 controller: nameController,
                 decoration: const InputDecoration(
                   labelText: 'Site Adı',
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFFFF8805)),
+                  ),
                 ),
               ),
               TextField(
                 controller: numController,
                 decoration: const InputDecoration(
                   labelText: 'Site Numarası',
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFFFF8805)),
+                  ),
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -38,7 +48,10 @@ class SitelerScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(context); // Popup'ı kapat
               },
-              child: const Text('İptal'),
+              child: const Text(
+                'İptal',
+                style: TextStyle(color: Color(0xFFFF8805)),
+              ),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -54,6 +67,9 @@ class SitelerScreen extends StatelessWidget {
                   Navigator.pop(context); // Popup'ı kapat
                 }
               },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, backgroundColor: Color(0xFFFF8805),
+              ),
               child: const Text('Kaydet'),
             ),
           ],
@@ -68,13 +84,24 @@ class SitelerScreen extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Silmek İstediğinize Emin misiniz?'),
+          backgroundColor: Colors.white,
+          title: const Text(
+            'Silmek İstediğinize Emin misiniz?',
+            style: TextStyle(color: Color(0xFFFF8805)),
+          ),
+          content: const Text(
+            'Bu siteyi silmek istediğinizden emin misiniz?',
+            style: TextStyle(color: Colors.black54),
+          ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context); // Popup'ı kapat
               },
-              child: const Text('İptal'),
+              child: const Text(
+                'İptal',
+                style: TextStyle(color: Color(0xFFFF8805)),
+              ),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -82,6 +109,9 @@ class SitelerScreen extends StatelessWidget {
                 await FirebaseFirestore.instance.collection('site').doc(siteId).delete();
                 Navigator.pop(context); // Popup'ı kapat
               },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, backgroundColor: Color(0xFFFF8805),
+              ),
               child: const Text('Sil'),
             ),
           ],
@@ -98,7 +128,7 @@ class SitelerScreen extends StatelessWidget {
           'Siteler',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Color(0xFFFF8805),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('site').snapshots(),
@@ -125,16 +155,27 @@ class SitelerScreen extends StatelessWidget {
                 },
                 child: Card(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   elevation: 5,
                   margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  color: Color(0xFFFF8805).withOpacity(0.8),
                   child: ListTile(
+                    contentPadding: const EdgeInsets.all(16),
                     title: Text(
                       site['name'],
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
                     ),
-                    subtitle: Text('Site No: ${site['num']}'),
+                    subtitle: Text(
+                      'Site No: ${site['num']}',
+                      style: const TextStyle(
+                        color: Colors.black54,
+                      ),
+                    ),
                     onTap: () {
                       Navigator.push(
                         context,
@@ -154,7 +195,7 @@ class SitelerScreen extends StatelessWidget {
         onPressed: () {
           showAddSiteDialog(context);
         },
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Color(0xFF08FFFF).withOpacity(0.8),
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );

@@ -15,8 +15,13 @@ class _KullanicilarEkraniState extends State<KullanicilarEkrani> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Kullanıcılar"),
+        title: const Text(
+          "Kullanıcılar",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
+        backgroundColor: Color(0xFFFF8805), // Öne çıkan renk
+        elevation: 0,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore.collection('users').snapshots(),
@@ -42,19 +47,32 @@ class _KullanicilarEkraniState extends State<KullanicilarEkrani> {
               return GestureDetector(
                 onLongPress: () => _showDeleteDialog(user.id),
                 child: Card(
-                  elevation: 5,
-                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  elevation: 6,
+                  margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15), // Yuvarlak köşeler
+                  ),
+                  color: Color(0xFF08FFFF).withOpacity(0.2), // Yumuşak arka plan rengi
                   child: ListTile(
-                    title: Text("İsim: ${user['name']}"),
+                    contentPadding: const EdgeInsets.all(7),
+                    title: Text(
+                      "İsim: ${user['name']}",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("ID: ${user['email']}"),
-                        Text("Şifre: ${user['password']}"),
+                        // E-posta adresinden @example.com kısmını kırpıyoruz
+                        Text("ID: ${user['email'].split('@')[0]}", style: TextStyle(color: Colors.grey[700])),
+                        Text("Şifre: ${user['password']}", style: TextStyle(color: Colors.grey[700])),
                       ],
                     ),
                     trailing: IconButton(
-                      icon: Icon(Icons.add_moderator, color: Colors.orange),
+                      icon: Icon(Icons.add_moderator, color: Color(0xFFFF8805)),
                       onPressed: () {
                         // Yetki verme ekranına yönlendirme
                         Navigator.push(
@@ -74,10 +92,12 @@ class _KullanicilarEkraniState extends State<KullanicilarEkrani> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddUserDialog,
-        child: Icon(Icons.person_add),
+        backgroundColor: Color(0xFFFF8805), // Floating button rengi
+        child: Icon(Icons.person_add, color: Colors.white),
       ),
     );
   }
+
 
 // Kullanıcı ekleme dialog
   void _showAddUserDialog() {
