@@ -2,6 +2,7 @@ import 'package:apartman/yetkiler.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class KullanicilarEkrani extends StatefulWidget {
   @override
@@ -45,7 +46,7 @@ class _KullanicilarEkraniState extends State<KullanicilarEkrani> {
               var user = filteredUsers[index];
 
               return GestureDetector(
-                onLongPress: () => _showDeleteDialog(user.id),
+                onLongPress: () => _showDeleteDialog(user.id, user["email"], user["password"]),
                 child: Card(
                   elevation: 6,
                   margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
@@ -139,27 +140,50 @@ class _KullanicilarEkraniState extends State<KullanicilarEkrani> {
                 final id = _idController.text;
                 final password = _passwordController.text;
 
-                final email = '$id@example.com';
-
-                UserCredential userCredential =
-                await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                  email: email,
-                  password: password,
-                );
-
-                final userId = userCredential.user!.uid;
-
-                DocumentReference userRef =
-                FirebaseFirestore.instance.collection('users').doc(userId);
-
                 if (name.isNotEmpty && id.isNotEmpty && password.isNotEmpty) {
-                  await userRef.set({
-                    'name': name,
-                    'email': email,
-                    'password': password,
-                    'role': "user",
-                  });
-                  Navigator.pop(context);
+                  try {
+                    final email = '$id@example.com';
+
+                    // Mevcut kullanıcıyı saklama
+                    User? currentUser = FirebaseAuth.instance.currentUser;
+
+                    // Yeni kullanıcı oluşturuluyor
+                    UserCredential userCredential =
+                    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                      email: email,
+                      password: password,
+                    );
+
+                    // Yeni oluşturulan kullanıcının UID'si
+                    final userId = userCredential.user!.uid;
+
+                    // Firestore'a kullanıcı bilgilerini ekleme
+                    DocumentReference userRef =
+                    FirebaseFirestore.instance.collection('users').doc(userId);
+
+                    await userRef.set({
+                      'name': name,
+                      'email': email,
+                      'password': password,
+                      'role': "user",
+                    });
+
+                    // Yeni kullanıcı oluşturulduktan sonra eski kullanıcıyla oturum açma
+                    if (currentUser != null) {
+                      await FirebaseAuth.instance.signOut(); // Yeni kullanıcıdan çıkış
+                      await FirebaseAuth.instance.signInWithEmailAndPassword(
+                        email: "admin@example.com",
+                        password: "admin1234", // Eski kullanıcının şifresi
+                      );
+                    }
+
+                    Navigator.pop(context); // Dialog'u kapat
+                  } catch (e) {
+                    print("Kullanıcı oluşturma hatası: $e");
+                    // Hata durumunda kullanıcıya mesaj gösterebilirsiniz
+                  }
+                } else {
+                  print("Tüm alanlar doldurulmalı");
                 }
               },
               child: Text("Ekle"),
@@ -171,7 +195,7 @@ class _KullanicilarEkraniState extends State<KullanicilarEkrani> {
   }
 
 // Kullanıcı silme dialog
-  void _showDeleteDialog(String userId) {
+  void _showDeleteDialog(String userId, String email, String password) {
     showDialog(
       context: context,
       builder: (context) {
@@ -185,8 +209,21 @@ class _KullanicilarEkraniState extends State<KullanicilarEkrani> {
             ),
             ElevatedButton(
               onPressed: () async {
-                await _firestore.collection('users').doc(userId).delete();
-                Navigator.pop(context);
+                try {
+                  // Öncelikle kimlik doğrulama yapın
+                  UserCredential userCredential = await FirebaseAuth.instance
+                      .signInWithEmailAndPassword(email: email, password: password);
+
+                  // Kullanıcıyı Authentication sisteminden silin
+                  await userCredential.user!.delete();
+
+                  // Kullanıcıyı Firestore'dan silin
+                  await _firestore.collection('users').doc(userId).delete();
+
+                  Navigator.pop(context);
+                } catch (e) {
+                  print("Hata: $e");
+                }
               },
               child: Text("Sil"),
             ),

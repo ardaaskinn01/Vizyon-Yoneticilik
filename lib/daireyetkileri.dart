@@ -66,7 +66,7 @@ class _BlokSayfasiState extends State<BlokSayfasi> {
         daireler = snapshot.docs.map((doc) {
           return {
             'number': doc['number'],
-            'name': "Daire ${doc['number']}",
+            'name': doc['name'] ?? " ",
           };
         }).toList();
         izinDurumlari = izinler;
@@ -125,20 +125,22 @@ class _BlokSayfasiState extends State<BlokSayfasi> {
             child: CheckboxListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               title: Text(
-                daire['name'],
+                daire['number'] == 0
+                    ? daire['name'] // Eğer 'number' 0 ise 'name' göster
+                    : 'Daire ${daire['number']}', // Aksi halde 'number' göster
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFFFF8805),  // Başlık rengi
+                  color: Color(0xFFFF8805), // Başlık rengi
                 ),
               ),
               value: izinDurumlari[daireNo],
               onChanged: (value) {
                 updateIzin(daireNo, value!);
               },
-              activeColor: Color(0xFF08FFFF).withOpacity(0.5),  // Onaylandığında renk
-              checkColor: Colors.white,  // Onay işareti rengi
-              controlAffinity: ListTileControlAffinity.leading,  // Checkbox solda
+              activeColor: Color(0xFF08FFFF).withOpacity(0.5), // Onaylandığında renk
+              checkColor: Colors.white, // Onay işareti rengi
+              controlAffinity: ListTileControlAffinity.leading, // Checkbox solda
             ),
           );
         },

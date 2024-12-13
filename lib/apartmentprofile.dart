@@ -357,7 +357,9 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
                             color: Color(0xFF08FFFF).withOpacity(0.2),
                             child: ListTile(
                               title: Text(
-                                'Daire ${user['number']}',
+                                user['number'] == 0
+                                    ? '${user['name']}' // Eğer 'number' 0 ise 'name' göster
+                                    : 'Daire ${user['number']}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
@@ -427,7 +429,9 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
                                   SizedBox(width: 15),
                                   Expanded(
                                     child: Text(
-                                      'Daire ${user['number']}',
+                                      user['number'] == 0
+                                          ? '${user['name']}' // Eğer 'number' 0 ise 'name' göster
+                                          : 'Daire ${user['number']}',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
