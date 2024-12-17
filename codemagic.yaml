@@ -9,11 +9,10 @@ workflows:
         script: |
           flutter clean
           flutter pub get
-          Podfile
       - name: iOS Build ve Pod Install
         script: |
-          flutter build ios 
-          cd ios && pod install
+          flutter build ios --release
+          cd ios && pod install --repo-update
       - name: Build IPA ve Artifacts
         script: |
           flutter build ios --release
