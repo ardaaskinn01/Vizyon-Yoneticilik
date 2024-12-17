@@ -12,9 +12,6 @@ project 'Runner', {
 
 def flutter_root
   generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'))
-  unless File.exist?(generated_xcode_build_settings_path)
-    raise "Generated.xcconfig must exist. Run 'flutter build ios' to generate it."
-  end
   File.expand_path(File.join('..', '..', '..'))
 end
 
