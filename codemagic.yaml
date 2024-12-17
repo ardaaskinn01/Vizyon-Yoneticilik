@@ -9,13 +9,14 @@ workflows:
         script: |
           flutter clean
           flutter pub get
+          Podfile
       - name: iOS Build ve Pod Install
         script: |
-          flutter build ios --release    # iOS için release build yapılır
-          cd ios && pod install          # Pod bağımlılıklarını yükler
+          flutter build ios 
+          cd ios && pod install
       - name: Build IPA ve Artifacts
         script: |
-          flutter build ios --release   # Tekrar build yapılır (gereklidir)
+          flutter build ios --release
     artifacts:
       - build/ios/ipa/*.ipa           # iOS IPA dosyasını alır
       - build/ios/iphoneos/*.app      # iOS uygulama dosyasını alır
