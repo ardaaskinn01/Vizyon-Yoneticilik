@@ -9,7 +9,26 @@
       "client_info": {
         "mobilesdk_app_id": "1:616618790162:android:7c80b56f0ad4ef8beb77cb",
         "android_client_info": {
-          "package_name": "com.example.apartman"
+          "package_name": "com.vizyon.apartman"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7po5qrOq3Xa2-Kam0--q6oNv0eEMEUkY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:616618790162:android:9193febc158b9e51eb77cb",
+        "android_client_info": {
+          "package_name": "com.vizyon.apartman"
         }
       },
       "oauth_client": [],

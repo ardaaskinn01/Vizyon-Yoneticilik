@@ -1,4 +1,4 @@
-package com.example.apartman
+package com.vizyon.apartman
 
 import io.flutter.embedding.android.FlutterActivity
 
