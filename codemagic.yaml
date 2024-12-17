@@ -9,6 +9,8 @@ workflows:
         script: |
           flutter clean
           flutter pub get
+          sudo gem install cocoapods
+          pod repo update
       - name: iOS Build ve Pod Install
         script: |
           flutter build ios --release
