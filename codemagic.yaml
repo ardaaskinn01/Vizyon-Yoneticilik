@@ -1,0 +1,17 @@
+workflows:
+  ios-release:
+    name: iOS Release Build
+    environment:
+      flutter: stable  # Flutter SDK'nın stabil sürümü
+      xcode: latest    # Xcode'un en güncel sürümünü kullanır
+    scripts:
+      - name: Temizlik ve Bağımlılıkları Yükleme
+        script: |
+          flutter clean
+          flutter pub get
+      - name: iOS Build ve Pod Install
+        script: |
+          flutter build ios --release
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - build/ios/iphoneos/*.app
