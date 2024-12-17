@@ -1,0 +1,26 @@
+# Podfile
+platform :ios, '13.0'
+
+# Flutter root
+flutter_root = File.expand_path('..', File.dirname(__FILE__)) + '/Flutter'
+
+# Flutter config
+load File.join(flutter_root, 'generated.xcconfig')
+
+target 'Runner' do
+  use_frameworks!
+  use_modular_headers!
+
+  # Flutter Pods
+  pod 'Flutter', :path => File.join(flutter_root, 'engine/ios')
+
+  # Plugins (manually add required pods)
+  pod 'cloud_firestore', :path => '../.symlinks/plugins/cloud_firestore/ios'
+
+  # Diğer bağımlılıkların pod'larını buraya ekleyin
+  # pod 'example_pod', '~> 1.0'
+
+  target 'RunnerTests' do
+    inherit! :search_paths
+  end
+end
