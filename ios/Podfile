@@ -1,26 +1,30 @@
-# Podfile
+# Uncomment this line to define a global platform for your project
 platform :ios, '13.0'
 
-# Flutter root
-flutter_root = File.expand_path('..', File.dirname(__FILE__)) + '/Flutter'
+# CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
-# Flutter config
-load File.join(flutter_root, 'generated.xcconfig')
+project 'Runner', {
+  'Debug' => :debug,
+  'Profile' => :release,
+  'Release' => :release,
+}
+
+def flutter_root
+  generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'))
+  unless File.exist?(generated_xcode_build_settings_path)
+    raise "Generated.xcconfig must exist. Run 'flutter build ios' to generate it."
+  end
+  File.expand_path(File.join('..', '..', '..'))
+end
+
+load File.join(flutter_root, 'packages', 'flutter_tools', 'bin', 'podhelper.rb')
+
+flutter_ios_podfile_setup
 
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
-  # Flutter Pods
-  pod 'Flutter', :path => File.join(flutter_root, 'engine/ios')
-
-  # Plugins (manually add required pods)
-  pod 'cloud_firestore', :path => '../.symlinks/plugins/cloud_firestore/ios'
-
-  # Diğer bağımlılıkların pod'larını buraya ekleyin
-  # pod 'example_pod', '~> 1.0'
-
-  target 'RunnerTests' do
-    inherit! :search_paths
-  end
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
