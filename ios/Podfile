@@ -11,10 +11,11 @@ project 'Runner', {
 }
 
 def flutter_root
-  generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'))
+  # Flutter projesinin kök dizini
   File.expand_path(File.join('..', '..', '..'))
 end
 
+# flutter_tools dizinindeki podhelper.rb dosyasını doğru şekilde yükleyin
 load File.join(flutter_root, 'packages', 'flutter_tools', 'bin', 'podhelper.rb')
 
 flutter_ios_podfile_setup
