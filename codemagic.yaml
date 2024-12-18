@@ -5,11 +5,13 @@ workflows:
       flutter: stable  # Flutter SDK'nın stabil sürümü
       xcode: latest    # Xcode'un en güncel sürümünü kullanır
     scripts:
+      - before_build:
+          - echo "Updating Podfile for iOS 13"
+          - sed -i "s/platform :ios, '12.0'/platform :ios, '13.0'/g" ios/Podfile
       - name: Temizlik ve Bağımlılıkları Yükleme
         script: |
           flutter clean
           flutter pub get
-          flutter ios:setup
           sudo gem install cocoapods
           pod repo update
       - name: iOS Build ve Pod Install
