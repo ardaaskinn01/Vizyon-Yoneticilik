@@ -8,7 +8,7 @@ workflows:
       - name: Updating Podfile for iOS 13
         script: |
           echo "Updating Podfile for iOS 13"
-          sed -i "s/platform :ios, '12.0'/platform :ios, '13.0'/g" ios/Podfile
+          perl -pi -e "s/platform :ios, '12.0'/platform :ios, '13.0'/g" ios/Podfile
       - name: Temizlik ve Bağımlılıkları Yükleme
         script: |
           flutter clean
