@@ -42,20 +42,31 @@ class _BlokSayfasiState extends State<BlokSayfasi> {
 
       DocumentSnapshot izinlerSnapshot = await izinlerRef.get();
 
-      Map<String, bool> izinler = {};
+      Map<String, dynamic> izinler = {};
 
       // Eğer izinler dokümanı yoksa varsayılan izinler oluştur
       if (!izinlerSnapshot.exists) {
         for (var doc in snapshot.docs) {
-          izinler[doc['number'].toString()] = false; // Varsayılan olarak false
+          String daireNo = doc['number'].toString();
+          if (doc['number'] == 0) {
+            // 'number' 0 ise 'name' değerini izinlere kaydet
+            izinler[doc['name']] = false;
+          } else {
+            izinler[daireNo] = false; // Varsayılan olarak false
+          }
         }
         await izinlerRef.set(izinler);
       } else {
-        izinler = Map<String, bool>.from(izinlerSnapshot.data() as Map);
+        izinler = Map<String, dynamic>.from(izinlerSnapshot.data() as Map);
         // Eksik daire izinlerini doldur
         for (var doc in snapshot.docs) {
           String daireNo = doc['number'].toString();
-          if (!izinler.containsKey(daireNo)) {
+          if (doc['number'] == 0) {
+            String daireAdi = doc['name'];
+            if (!izinler.containsKey(daireAdi)) {
+              izinler[daireAdi] = false; // Varsayılan olarak false
+            }
+          } else if (!izinler.containsKey(daireNo)) {
             izinler[daireNo] = false; // Varsayılan olarak false
           }
         }
@@ -69,7 +80,7 @@ class _BlokSayfasiState extends State<BlokSayfasi> {
             'name': doc['name'] ?? " ",
           };
         }).toList();
-        izinDurumlari = izinler;
+        izinDurumlari = Map<String, bool>.from(izinler);
         isLoading = false;
       });
     } catch (e) {
@@ -80,18 +91,17 @@ class _BlokSayfasiState extends State<BlokSayfasi> {
     }
   }
 
-  // Checkbox değişiminde veritabanını güncelle
-  void updateIzin(String daireNo, bool izin) async {
+  void updateIzin(String key, bool izin) async {
     DocumentReference izinlerRef = FirebaseFirestore.instance
         .collection('users')
         .doc(widget.userId)
         .collection('izinler')
         .doc(widget.blockId);
 
-    await izinlerRef.update({daireNo: izin});
+    await izinlerRef.update({key: izin});
 
     setState(() {
-      izinDurumlari[daireNo] = izin;
+      izinDurumlari[key] = izin;
     });
   }
 
@@ -119,9 +129,9 @@ class _BlokSayfasiState extends State<BlokSayfasi> {
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),  // Yuvarlatılmış köşeler
+              borderRadius: BorderRadius.circular(12), // Yuvarlatılmış köşeler
             ),
-            elevation: 5,  // Kart gölgesi
+            elevation: 5, // Kart gölgesi
             child: CheckboxListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               title: Text(
@@ -134,9 +144,9 @@ class _BlokSayfasiState extends State<BlokSayfasi> {
                   color: Color(0xFFFF8805), // Başlık rengi
                 ),
               ),
-              value: izinDurumlari[daireNo],
+              value: izinDurumlari[daire['number'] == 0 ? daire['name'] : daireNo],
               onChanged: (value) {
-                updateIzin(daireNo, value!);
+                updateIzin(daire['number'] == 0 ? daire['name'] : daireNo, value!);
               },
               activeColor: Color(0xFF08FFFF).withOpacity(0.5), // Onaylandığında renk
               checkColor: Colors.white, // Onay işareti rengi

@@ -338,6 +338,7 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
                     final userId = currentUser!.uid;
                     final userId2 = user.id;
                     final daireNumber = user['number'].toString();
+                    final daireName = user['name'].toString();
 
                     return FutureBuilder<DocumentSnapshot>(
                       future: FirebaseFirestore.instance
@@ -370,12 +371,13 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
                             ),
                           );
                         }
-
                         // Admin kontrolü
                         bool isAdmin = widget.id == 1;
                         final permissionData = permissionSnapshot.data?.data() as Map<String, dynamic>?;
-                        final hasPermission = isAdmin || permissionData?[daireNumber] == true;
 
+                        final hasPermission = isAdmin || ((daireNumber == "0")
+                            ? (permissionData?[daireName] == true) // Eğer daire number 0 ise name'e göre kontrol
+                            : (permissionData?[daireNumber] == true));
                         return Card(
                           margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                           elevation: 8,

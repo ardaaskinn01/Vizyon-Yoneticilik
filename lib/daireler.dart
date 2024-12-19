@@ -133,6 +133,52 @@ class DairelerScreen extends StatelessWidget {
     );
   }
 
+  void showDeleteApartmentDialog(BuildContext context, String apartmentId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Daire Sil', style: TextStyle(color: Color(0xFFFF8805))),
+          content: Text(
+            'Daire silinsin mi?',
+            style: const TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Popup'ı kapat
+              },
+              child: const Text('Hayır', style: TextStyle(color: Color(0xFFFF8805))),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  await FirebaseFirestore.instance
+                      .collection('blocks')
+                      .doc(blockId)
+                      .collection('apartments')
+                      .doc(apartmentId)
+                      .delete();
+
+                  Navigator.pop(context); // Popup'ı kapat
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Daire başarıyla silindi.')),
+                  );
+                } catch (e) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Daire silinirken bir hata oluştu.')),
+                  );
+                }
+              },
+              child: const Text('Evet', style: TextStyle(color: Color(0xFFFF8805))),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,6 +238,9 @@ class DairelerScreen extends StatelessWidget {
                     'Borç: ${apartment['borçlar']} TL',
                     style: const TextStyle(fontSize: 16, color: Colors.red),
                   ),
+                  onLongPress: () {
+                    showDeleteApartmentDialog(context, apartment.id);
+                  },
                 ),
               );
             },
