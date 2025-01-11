@@ -30,6 +30,12 @@
 @import firebase_messaging;
 #endif
 
+#if __has_include(<firebase_remote_config/FLTFirebaseRemoteConfigPlugin.h>)
+#import <firebase_remote_config/FLTFirebaseRemoteConfigPlugin.h>
+#else
+@import firebase_remote_config;
+#endif
+
 #if __has_include(<flutter_native_splash/FlutterNativeSplashPlugin.h>)
 #import <flutter_native_splash/FlutterNativeSplashPlugin.h>
 #else
@@ -61,6 +67,7 @@
   [FLTFirebaseAuthPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseAuthPlugin"]];
   [FLTFirebaseCorePlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseCorePlugin"]];
   [FLTFirebaseMessagingPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseMessagingPlugin"]];
+  [FLTFirebaseRemoteConfigPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseRemoteConfigPlugin"]];
   [FlutterNativeSplashPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterNativeSplashPlugin"]];
   [OneSignalPlugin registerWithRegistrar:[registry registrarForPlugin:@"OneSignalPlugin"]];
   [SharedPreferencesPlugin registerWithRegistrar:[registry registrarForPlugin:@"SharedPreferencesPlugin"]];

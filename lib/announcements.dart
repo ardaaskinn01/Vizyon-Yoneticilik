@@ -93,7 +93,7 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
         stream: FirebaseFirestore.instance
             .collection('announcements')
             .where('siteId', isEqualTo: widget.siteId)
-            .orderBy('tarih', descending: true)
+            .orderBy('date', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {

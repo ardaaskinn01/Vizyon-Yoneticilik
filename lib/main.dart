@@ -9,27 +9,74 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'firebase_options.dart';
 import 'adminpanel.dart';
 import 'userpanel.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  initOneSignal();
+  await Firebase.initializeApp(); // Firebase'i başlat
+  await initRemoteConfig();  // Remote Config başlatma
   runApp(const MyApp());
 }
 
-void initOneSignal() async {
-  OneSignal.Debug.setLogLevel(OSLogLevel.none);
-
-  OneSignal.initialize("402eedf4-e7b6-48df-9941-fbfcdc9362dc");
-
-// The promptForPushNotificationsWithUserResponse function will show the iOS or Android push notification prompt. We recommend removing the following code and instead using an In-App Message to prompt for notification permission
-  OneSignal.Notifications.requestPermission(true);
+Future<void> initRemoteConfig() async {
+  final FirebaseRemoteConfig remoteConfig = await FirebaseRemoteConfig.instance;
+  await remoteConfig.fetchAndActivate();  // Remote config verilerini al ve etkinleştir
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late String currentVersion;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAppVersion();
+  }
+
+  Future<void> _checkAppVersion() async {
+    final FirebaseRemoteConfig remoteConfig = await FirebaseRemoteConfig.instance;
+
+    // Remote Config'den sürüm bilgisi al
+    await remoteConfig.fetchAndActivate();
+    final String remoteVersion = remoteConfig.getString('current_version');
+    setState(() {
+      currentVersion = remoteVersion;
+    });
+
+    final String appVersion = '3.1.0'; // Şu anki uygulama sürümünüzü buraya yazın
+
+    if (appVersion != currentVersion) {
+      // Güncelleme duyurusu
+      _showUpdateDialog();
+    }
+  }
+
+  void _showUpdateDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Yeni Güncelleme Mevcut'),
+          content: Text('Yeni sürümü yüklemek için uygulamanızı güncelleyin.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Tamam'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Güncelleme sayfasına yönlendirme yapabilirsiniz
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,8 +140,6 @@ class MyApp extends StatelessWidget {
     return null; // Kullanıcı yoksa null döndür
   }
 }
-
-
 
 class LoginScreen extends StatelessWidget {
   final TextEditingController usernameController = TextEditingController();
