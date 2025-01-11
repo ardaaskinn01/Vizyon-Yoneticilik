@@ -10,12 +10,15 @@ import 'firebase_options.dart';
 import 'adminpanel.dart';
 import 'userpanel.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(); // Firebase'i başlat
   await initRemoteConfig();  // Remote Config başlatma
-  runApp(const MyApp());
+  runApp(MaterialApp(
+    home: MyApp(),
+  ));
 }
 
 Future<void> initRemoteConfig() async {
@@ -40,19 +43,18 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _checkAppVersion() async {
-    final FirebaseRemoteConfig remoteConfig = await FirebaseRemoteConfig.instance;
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    final String appVersion = packageInfo.version; // Uygulamanın mevcut sürümünü al
 
-    // Remote Config'den sürüm bilgisi al
+    final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
     await remoteConfig.fetchAndActivate();
     final String remoteVersion = remoteConfig.getString('current_version');
+
     setState(() {
       currentVersion = remoteVersion;
     });
 
-    final String appVersion = '3.1.0'; // Şu anki uygulama sürümünüzü buraya yazın
-
     if (appVersion != currentVersion) {
-      // Güncelleme duyurusu
       _showUpdateDialog();
     }
   }
@@ -77,6 +79,7 @@ class _MyAppState extends State<MyApp> {
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {

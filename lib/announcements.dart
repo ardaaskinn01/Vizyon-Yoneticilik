@@ -123,6 +123,11 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
             padding: EdgeInsets.all(16),
             itemCount: announcements.length,
             itemBuilder: (context, index) {
+              var announcement = announcements[index];
+              Timestamp timestamp = announcement['date'];
+              DateTime dateTime = timestamp.toDate();
+
+              String formattedDate = '${dateTime.day.toString().padLeft(2, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.year}';
               if (isLocked && widget.id == 1) {
                 return Center(
                   child: Icon(
@@ -157,26 +162,31 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              announcement['başlık'],
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 22,
-                                color: Colors.black,
+                            Expanded( // Announcement title Text wrapped with Expanded
+                              child: Text(
+                                announcement['başlık'],
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
-                            Text(
-                              addedBy,
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black54,
+                            Align( // Align widget used to align "addedBy" text to the right
+                              alignment: Alignment.topRight,
+                              child: Text(
+                                addedBy,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black54,
+                                ),
                               ),
                             ),
                           ],
                         ),
                         Text(
-                          announcement['tarih'],
+                          formattedDate,
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.black54,
@@ -357,11 +367,11 @@ class _DuyuruScreenState extends State<DuyuruScreen> {
                           }
                         }
 
-                        final now = DateTime.now();
+                        Timestamp timestamp = Timestamp.now();
                         await FirebaseFirestore.instance.collection('announcements').add({
                           'başlık': announcementController2.text.trim(),
                           'metin': announcementController.text.trim(),
-                          'tarih': '${now.day}/${now.month}/${now.year}',
+                          'date': timestamp,
                           'ekleyen': user?.displayName ?? 'Bilinmiyor',
                           'apartman': selectedApartment,
                           'siteId': widget.siteId,

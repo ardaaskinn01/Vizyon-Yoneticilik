@@ -31,7 +31,7 @@ android {
         applicationId = "com.vizyon.apartman"
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
-        versionCode = 8
+        versionCode = 10
         versionName = flutter.versionName
     }
     signingConfigs {

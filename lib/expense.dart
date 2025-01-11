@@ -81,6 +81,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                   .orderBy('date', descending: true)
                   .snapshots(),
               builder: (context, snapshot) {
+                print("sonuç: $snapshot");
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   if (widget.id == 1 && canViewExpenses == false) {
                     return Center(
@@ -117,6 +118,10 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                   itemCount: expenses.length,
                   itemBuilder: (context, index) {
                     var expense = expenses[index];
+                    Timestamp timestamp = expense['date'];
+                    DateTime dateTime = timestamp.toDate();
+
+                    String formattedDate = '${dateTime.day.toString().padLeft(2, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.year}';
 
                     return GestureDetector(
                       onLongPress: widget.id == 0 && canViewExpenses
@@ -152,7 +157,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                'Tarih: ${expense['date']}',
+                                'Tarih: $formattedDate',
                                 style: TextStyle(
                                   color: Color(0xFF707070),
                                   fontSize: 14,
@@ -279,8 +284,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                           return;
                         }
 
-                        DateTime now = DateTime.now();
-                        String date = '${now.day}-${now.month}-${now.year}';
+                        Timestamp timestamp = Timestamp.now();
 
                         // Firebase Authentication ile currentUser'ı alıyoruz
                         User? currentUser = FirebaseAuth.instance.currentUser;
@@ -289,7 +293,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                           // Veriyi Firestore'a kaydetmek
                           await FirebaseFirestore.instance.collection('expenses').add({
                             'title': title,
-                            'date': date,
+                            'date': timestamp,
                             'amount': amount,
                             'siteId': widget.siteId,
                             'apartment': selectedApartment,
