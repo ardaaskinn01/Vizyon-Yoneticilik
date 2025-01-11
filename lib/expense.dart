@@ -78,6 +78,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
               stream: FirebaseFirestore.instance
                   .collection('expenses')
                   .where('siteId', isEqualTo: widget.siteId)
+                  .orderBy('tarih', descending: true)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {

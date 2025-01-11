@@ -65,8 +65,7 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
 
                 if (amount != null && description.isNotEmpty) {
                   for (var userId in selectedUserIds) {
-                    await _addDebtForSingleUser(
-                        userId, description, amount);
+                    await _addDebtForSingleUser(userId, description, amount);
                   }
                 }
                 Navigator.of(context).pop();
@@ -169,9 +168,7 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
     setState(() {});
   }
 
-
-  Future<void> _addDebtToAllUsers(
-      String description, double amount) async {
+  Future<void> _addDebtToAllUsers(String description, double amount) async {
     final usersSnapshot = await FirebaseFirestore.instance
         .collection('blocks')
         .doc(widget.apartmentId)
@@ -189,13 +186,11 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
           .doc(userId)
           .collection('borçlar')
           .add({
-        'amount': amount,
+        'amount': amount, // Miktar double oldu
         'description': description,
       });
     }
 
-
-    // Tüm kullanıcılar için toplam borcu güncelle
     await _updateTotalDebt();
     setState(() {});
   }
@@ -210,13 +205,10 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
         .doc(debtId)
         .delete();
 
-    // Borçların toplamını yeniden hesapla ve güncelle
-    await _updateTotalDebt(); // Apartmanın toplam borcunu güncelle
-    setState(() {}); // Listeyi güncellemek için setState
+    await _updateTotalDebt();
+    setState(() {});
   }
 
-
-  // Apartmanın toplam borcunu güncelleme
   Future<void> _updateTotalDebt() async {
     final usersSnapshot = await FirebaseFirestore.instance
         .collection('blocks')
@@ -230,7 +222,6 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
     for (var userDoc in usersSnapshot.docs) {
       final userId = userDoc.id;
 
-      // Her kullanıcı için borçları al ve toplamı hesapla
       final debtSnapshot = await FirebaseFirestore.instance
           .collection('blocks')
           .doc(widget.apartmentId)
@@ -240,20 +231,14 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
           .get();
 
       double userTotalDebt = 0.0;
-      List<Map<String, dynamic>> debts = [];
 
       for (var doc in debtSnapshot.docs) {
-        double amount = (doc['amount'] is int)
+        final double amount = (doc['amount'] is int)
             ? (doc['amount'] as int).toDouble()
             : doc['amount'];
-        debts.add({
-          'id': doc.id, // Borcun ID'sini ekliyoruz
-          'amount': amount,
-        });
-        userTotalDebt += amount; // Kullanıcının toplam borcunu hesapla
+        userTotalDebt += amount;
       }
 
-      // Kullanıcının toplam borcunu apartments içindeki dökümanda güncelle
       await FirebaseFirestore.instance
           .collection('blocks')
           .doc(widget.apartmentId)
@@ -261,7 +246,7 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
           .doc(userId)
           .update({'borçlar': userTotalDebt});
 
-      totalDebt += userTotalDebt; // Genel toplam borcu hesapla
+      totalDebt += userTotalDebt;
     }
   }
 
@@ -278,18 +263,19 @@ class _ApartmentProfileState extends State<ApartmentProfile> {
     double totalDebt = 0.0;
 
     for (var doc in debtSnapshot.docs) {
-      double amount = (doc['amount'] is int)
-          ? (doc['amount']).toDouble()
+      final double amount = (doc['amount'] is int)
+          ? (doc['amount'] as int).toDouble()
           : doc['amount'];
       debts.add({
-        'id': doc.id, // Borcun ID'sini ekliyoruz
+        'id': doc.id,
         'amount': amount,
         'description': doc["description"],
       });
-      totalDebt += amount; // Toplam borç miktarını ekle
+      totalDebt += amount;
     }
     return debts;
   }
+
 
   @override
   Widget build(BuildContext context) {
